@@ -1,0 +1,23 @@
+---
+#listen_address: "127.0.0.1:9702" # Default: ":9702"
+#metrics_path: "/newpath" # Default: "/metrics"
+#interval: "90s" # Tests interval, default and minimum "60s"
+#timeout: "3s" # Timeout handler, default and maximum "5s"
+#log_level: "debug" # "none", "info", "error", "debug". Default "none"
+
+artifactory:
+  url: "http://artifactory.mydomain.com"
+  repo_path: "release/artifactory-tests"
+
+test_files:
+  test-file-10MB.jar: # filename
+    size: 10 # in MB
+    histogram_bucket_push: [3, 3.5, 4, 4.5, 5]
+    histogram_bucket_pull: [1, 1.5, 2, 2.5, 3]
+#    timeout_push: "29s" # default: maximum possible timeout, see docs
+#    timeout_pull: "29s" # default: maximum possible timeout, see docs
+    verify_checksum: true # default "false"
+#  test-file-1MB.jar:
+#    size: 1
+#    histogram_bucket_push: [2, 2.5, 3, 3.5, 4]
+#    histogram_bucket_pull: [0.5, 1, 1.5, 2, 2.5]
