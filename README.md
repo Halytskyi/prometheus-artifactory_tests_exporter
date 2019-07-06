@@ -6,7 +6,7 @@ Prometheus exporter for Artifactory SLO/SLI tests
 - Measure time for push and pull tests
 - Data output in "Gauge" and "Histograms".
 
-Default values for parameters which can be redefined in config file [artifactory-tests.yml](dpkg-sources/dirs/etc/prometheus/artifactory-tests.yml)
+Default values for parameters which can be redefined in config file [artifactory-tests.yml](dpkg-sources/dirs/opt/prometheus/prometheus-artifactory-tests-exporter/artifactory-tests.yml)
 
 ```
 listen_address: "127.0.0.1:9702"
