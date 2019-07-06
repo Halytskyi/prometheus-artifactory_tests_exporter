@@ -70,4 +70,5 @@ $ make build-deb PKG_VENDOR='Pkg Vendor Name' PKG_MAINTAINER='Pkg Maintainer' PK
 ```
 
 After build, package will be in `deb-packages` local dir.
-DEB-package installation dir: /opt/prometheus/prometheus-artifactory-tests-exporter
+
+DEB-package installation dir: `/opt/prometheus/prometheus-artifactory-tests-exporter`
