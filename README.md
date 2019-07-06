@@ -13,6 +13,7 @@ listen_address: "127.0.0.1:9702"
 metrics_path: "/metrics"
 interval: "60s"
 timeout: "5s"
+test_files_path: "/opt/prometheus/prometheus-artifactory-tests-exporter/test-files"
 log_level: "none"
 
 test_files:
@@ -27,6 +28,8 @@ where,
 `interval` - interval between tests
 
 `timeout` - handler timeout
+
+`test_files_path` - path to test files
 
 `log_level` - can be "none", "info", "error" or "debug"
 
@@ -67,3 +70,4 @@ $ make build-deb PKG_VENDOR='Pkg Vendor Name' PKG_MAINTAINER='Pkg Maintainer' PK
 ```
 
 After build, package will be in `deb-packages` local dir.
+DEB-package installation dir: /opt/prometheus/prometheus-artifactory-tests-exporter

@@ -20,7 +20,7 @@ ARG pkg_maintainer
 ARG pkg_url
 
 RUN mkdir /deb-packages
-COPY --from=builder /$binary_name /deb-packages/usr/bin/$binary_name
+COPY --from=builder /$binary_name /deb-packages/opt/prometheus/prometheus-artifactory-tests-exporter/$binary_name
 COPY dpkg-sources/dirs /deb-packages
 RUN mkdir dpkg-sources
 COPY dpkg-sources /dpkg-sources/
@@ -36,4 +36,4 @@ RUN fpm --output-type deb \
   --deb-systemd "startup/prometheus-artifactory-tests-exporter.service" \
   --deb-default "prometheus-artifactory-tests-exporter" \
   -p ${deb_package_name}-${version_string}.deb \
-  etc usr && cp *.deb /deb-packages/
+  opt && cp *.deb /deb-packages/

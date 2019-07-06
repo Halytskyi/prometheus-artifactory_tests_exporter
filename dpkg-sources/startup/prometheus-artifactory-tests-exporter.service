@@ -4,9 +4,9 @@ Documentation=https://github.com/Halytskyi/prometheus-artifactory_tests_exporter
 
 [Service]
 Restart=always
-User=prometheus
+User=root
 EnvironmentFile=/etc/default/prometheus-artifactory-tests-exporter
-ExecStart=/usr/bin/prometheus-artifactory-tests-exporter $ARGS
+ExecStart=/opt/prometheus/prometheus-artifactory-tests-exporter/prometheus-artifactory-tests-exporter $ARGS
 ExecReload=/bin/kill -HUP $MAINPID
 TimeoutStopSec=20s
 SendSIGKILL=no

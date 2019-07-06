@@ -1,1 +1,1 @@
-ARGS="--config.file /etc/prometheus/artifactory-tests.yml"
+ARGS="--config.file /opt/prometheus/prometheus-artifactory-tests-exporter/artifactory-tests.yml"

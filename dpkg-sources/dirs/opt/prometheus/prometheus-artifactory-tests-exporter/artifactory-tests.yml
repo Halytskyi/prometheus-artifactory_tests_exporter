@@ -3,6 +3,7 @@
 #metrics_path: "/newpath" # Default: "/metrics"
 #interval: "90s" # Tests interval, default and minimum "60s"
 #timeout: "3s" # Timeout handler, default and maximum "5s"
+#test_files_path: "/tmp/test-files" # Default "/opt/prometheus/prometheus-artifactory-tests-exporter/test-files"
 #log_level: "debug" # "none", "info", "error", "debug". Default "none"
 
 artifactory:

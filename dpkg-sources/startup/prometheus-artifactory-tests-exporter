@@ -11,11 +11,11 @@
 
 DESC="Prometheus Artifactory Tests Exporter"
 NAME=prometheus-artifactory-tests-exporter
-DAEMON=/usr/bin/prometheus-artifactory-tests-exporter
+DAEMON=/opt/prometheus/prometheus-artifactory-tests-exporter/prometheus-artifactory-tests-exporter
 
 DAEMONUSER=root
 PIDFILE=/var/run/$NAME.pid
-CONFIGFILE=/etc/prometheus/artifactory-tests.yml
+CONFIGFILE=/opt/prometheus/prometheus-artifactory-tests-exporter/artifactory-tests.yml
 
 STOP_SCHEDULE="${STOP_SCHEDULE:-QUIT/5/TERM/5/KILL/5}"
 

@@ -31,7 +31,7 @@ import (
 var logLevel string = "none"
 var version string
 var buildDate string
-var testFilesDir = "test-files"
+var testFilesDir string
 var pushDuration map[string]float64
 var pushSuccess map[string]float64
 var pullDuration map[string]float64
@@ -376,6 +376,12 @@ func main() {
 
 	// Artifactory server parameters
 	artifactoryParams := conf.Artifactory
+
+	// Path for test files
+	testFilesDir = conf.TestFilesPath
+	if testFilesDir == "" {
+		testFilesDir = "/opt/prometheus/prometheus-artifactory-tests-exporter/test-files"
+	}
 
 	// Parse test files parameters
 	artifactoryPushDurationHistograms := make(map[string]*prometheus.HistogramVec)
