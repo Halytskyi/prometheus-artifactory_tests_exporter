@@ -71,44 +71,44 @@ func makeTests(artifactoryServer ArtifactoryParams, testsInterval float64, testF
 
 			// Push test file
 			testFile, err := os.Open(fileFullPath)
-			if err != nil {
-				pushDuration[fileName] = 0
-				pushSuccess[fileName] = 0
-				if logLevel == "error" || logLevel == "debug" {
-					log.Errorln(err)
-				}
-			}
-			defer testFile.Close()
-			ctx_push, cancel := context.WithTimeout(context.Background(), time.Duration(filesTimeoutPush[fileName]*float64(time.Second)))
-			defer cancel()
-			if logLevel == "info" || logLevel == "debug" {
-				log.Infoln("Start push file '" + fileName + "'")
-			}
-			start_push := time.Now()
-			req_push, err := http.NewRequest("PUT", artifactoryFullPath, testFile)
-			if err != nil {
-				pushDuration[fileName] = 0
-				pushSuccess[fileName] = 0
-				if logLevel == "error" || logLevel == "debug" {
-					log.Errorln(err)
-				}
-			}
-			resp_push, err := http.DefaultClient.Do(req_push.WithContext(ctx_push))
 			if err == nil {
-				if resp_push.StatusCode == 201 {
-					pushDuration[fileName] = time.Since(start_push).Seconds()
-					pushSuccess[fileName] = 1
-					if logLevel == "info" || logLevel == "debug" {
-						log.Infoln("'"+fileName+"' push duration:", pushDuration[fileName])
+				ctx_push, _ := context.WithTimeout(context.Background(), time.Duration(filesTimeoutPush[fileName]*float64(time.Second)))
+				if logLevel == "info" || logLevel == "debug" {
+					log.Infoln("Start push file '" + fileName + "'")
+				}
+				start_push := time.Now()
+				req_push, err := http.NewRequest("PUT", artifactoryFullPath, testFile)
+				if err == nil {
+					resp_push, err := http.DefaultClient.Do(req_push.WithContext(ctx_push))
+					if err == nil {
+						if resp_push.StatusCode == 201 {
+							pushDuration[fileName] = time.Since(start_push).Seconds()
+							pushSuccess[fileName] = 1
+							if logLevel == "info" || logLevel == "debug" {
+								log.Infoln("'"+fileName+"' push duration:", pushDuration[fileName])
+							}
+						} else {
+							pushDuration[fileName] = 0
+							pushSuccess[fileName] = 0
+							if logLevel == "error" || logLevel == "debug" {
+								log.Errorln("Response code:", resp_push.StatusCode)
+							}
+						}
+						resp_push.Body.Close()
+					} else {
+						pushDuration[fileName] = 0
+						pushSuccess[fileName] = 0
+						if logLevel == "error" || logLevel == "debug" {
+							log.Errorln(err)
+						}
 					}
 				} else {
 					pushDuration[fileName] = 0
 					pushSuccess[fileName] = 0
 					if logLevel == "error" || logLevel == "debug" {
-						log.Errorln("Response code:", resp_push.StatusCode)
+						log.Errorln(err)
 					}
 				}
-				defer resp_push.Body.Close()
 			} else {
 				pushDuration[fileName] = 0
 				pushSuccess[fileName] = 0
@@ -116,65 +116,64 @@ func makeTests(artifactoryServer ArtifactoryParams, testsInterval float64, testF
 					log.Errorln(err)
 				}
 			}
+			testFile.Close()
 
 			// Pull test file
-			ctx_pull, cancel := context.WithTimeout(context.Background(), time.Duration(filesTimeoutPull[fileName]*float64(time.Second)))
-			defer cancel()
+			ctx_pull, _ := context.WithTimeout(context.Background(), time.Duration(filesTimeoutPull[fileName]*float64(time.Second)))
 			if logLevel == "info" || logLevel == "debug" {
 				log.Infoln("Start pull file '" + fileName + "'")
 			}
 			start_pull := time.Now()
 			req_pull, err := http.NewRequest("GET", artifactoryFullPath, nil)
-			if err != nil {
-				pullDuration[fileName] = 0
-				pullSuccess[fileName] = 0
-				if logLevel == "error" || logLevel == "debug" {
-					log.Errorln(err)
-				}
-			}
-			resp_pull, err := http.DefaultClient.Do(req_pull.WithContext(ctx_pull))
 			if err == nil {
-				if resp_pull.StatusCode == 200 {
-					defer resp_pull.Body.Close()
-					// Create the file
-					fileDownloaded, err := os.Create(fileFullPath + "-downloaded")
-					if err == nil {
-						defer fileDownloaded.Close()
-						_, err = io.Copy(fileDownloaded, resp_pull.Body)
+				resp_pull, err := http.DefaultClient.Do(req_pull.WithContext(ctx_pull))
+				if err == nil {
+					if resp_pull.StatusCode == 200 {
+						// Create the file
+						fileDownloaded, err := os.Create(fileFullPath + "-downloaded")
 						if err == nil {
-							// Verify downloaded file checksum
-							if fileParams.VerifyChecksum {
-								hash, err := hash_file_md5(fileFullPath + "-downloaded")
-								if err == nil {
-									if logLevel == "info" || logLevel == "debug" {
-										log.Infoln("'"+fileName+"' hash: ", filesChecksum[fileName])
-										log.Infoln("'"+fileName+"-downloaded' hash: ", hash)
-									}
-									if hash == filesChecksum[fileName] {
-										pullDuration[fileName] = time.Since(start_pull).Seconds()
-										pullSuccess[fileName] = 1
+							_, err = io.Copy(fileDownloaded, resp_pull.Body)
+							if err == nil {
+								// Verify downloaded file checksum
+								if fileParams.VerifyChecksum {
+									hash, err := hash_file_md5(fileFullPath + "-downloaded")
+									if err == nil {
 										if logLevel == "info" || logLevel == "debug" {
-											log.Infoln("'"+fileName+"' pull duration:", pullDuration[fileName])
+											log.Infoln("'"+fileName+"' hash: ", filesChecksum[fileName])
+											log.Infoln("'"+fileName+"-downloaded' hash: ", hash)
+										}
+										if hash == filesChecksum[fileName] {
+											pullDuration[fileName] = time.Since(start_pull).Seconds()
+											pullSuccess[fileName] = 1
+											if logLevel == "info" || logLevel == "debug" {
+												log.Infoln("'"+fileName+"' pull duration:", pullDuration[fileName])
+											}
+										} else {
+											pullDuration[fileName] = 0
+											pullSuccess[fileName] = 0
+											if logLevel == "error" || logLevel == "debug" {
+												log.Errorln("Checksum for file '" + fileName + "-downloaded' not the same as for original")
+											}
 										}
 									} else {
 										pullDuration[fileName] = 0
 										pullSuccess[fileName] = 0
 										if logLevel == "error" || logLevel == "debug" {
-											log.Errorln("Checksum for file '" + fileName + "-downloaded' not the same as for original")
+											log.Errorln(err)
 										}
 									}
 								} else {
-									pullDuration[fileName] = 0
-									pullSuccess[fileName] = 0
-									if logLevel == "error" || logLevel == "debug" {
-										log.Errorln(err)
+									pullDuration[fileName] = time.Since(start_pull).Seconds()
+									pullSuccess[fileName] = 1
+									if logLevel == "info" || logLevel == "debug" {
+										log.Infoln("'"+fileName+"' pull duration:", pullDuration[fileName])
 									}
 								}
 							} else {
-								pullDuration[fileName] = time.Since(start_pull).Seconds()
-								pullSuccess[fileName] = 1
-								if logLevel == "info" || logLevel == "debug" {
-									log.Infoln("'"+fileName+"' pull duration:", pullDuration[fileName])
+								pullDuration[fileName] = 0
+								pullSuccess[fileName] = 0
+								if logLevel == "error" || logLevel == "debug" {
+									log.Errorln(err)
 								}
 							}
 						} else {
@@ -184,18 +183,20 @@ func makeTests(artifactoryServer ArtifactoryParams, testsInterval float64, testF
 								log.Errorln(err)
 							}
 						}
+						fileDownloaded.Close()
 					} else {
 						pullDuration[fileName] = 0
 						pullSuccess[fileName] = 0
 						if logLevel == "error" || logLevel == "debug" {
-							log.Errorln(err)
+							log.Errorln("Response code:", resp_pull.StatusCode)
 						}
 					}
+					resp_pull.Body.Close()
 				} else {
 					pullDuration[fileName] = 0
 					pullSuccess[fileName] = 0
 					if logLevel == "error" || logLevel == "debug" {
-						log.Errorln("Response code:", resp_pull.StatusCode)
+						log.Errorln(err)
 					}
 				}
 			} else {
