@@ -49,5 +49,6 @@ containerID=$(docker run -dt $FPM_IMAGE)
 # https://github.com/moby/moby/issues/7710
 mkdir -p $BUILD_ARTIFACTS_DIR
 docker cp $containerID:/deb-packages/${DEB_PACKAGE_NAME}-${VERSION_STRING}.deb $BUILD_ARTIFACTS_DIR/.
+docker cp $containerID:/deb-packages/opt/prometheus/${BINARY_NAME}/${BINARY_NAME} $BUILD_ARTIFACTS_DIR/.
 sleep 1
 docker rm -f $containerID

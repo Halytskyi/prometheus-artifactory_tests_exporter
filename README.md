@@ -69,6 +69,6 @@ With defined variables:
 $ make build-deb PKG_VENDOR='Pkg Vendor Name' PKG_MAINTAINER='Pkg Maintainer' PKG_URL='http://example.com/no-uri-given'
 ```
 
-After build, package will be in `deb-packages` local dir.
+After build, package and binary file will be in `deb-packages` local dir.
 
 DEB-package installation dir: `/opt/prometheus/prometheus-artifactory-tests-exporter`
