@@ -15,6 +15,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"errors"
+	"flag"
 	"io"
 	"math/rand"
 	"net/http"
@@ -22,9 +23,9 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/prometheus/common/log"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -62,7 +63,7 @@ func makeTests(artifactoryServer ArtifactoryParams, testsInterval float64, testF
 
 	for {
 		if logLevel == "info" || logLevel == "debug" {
-			log.Infoln("---====== Start tests ======---")
+			glog.Infoln("---====== Start tests ======---")
 		}
 		start_tests := time.Now()
 		for fileName, fileParams := range testFiles {
@@ -74,7 +75,7 @@ func makeTests(artifactoryServer ArtifactoryParams, testsInterval float64, testF
 			if err == nil {
 				ctx_push, _ := context.WithTimeout(context.Background(), time.Duration(filesTimeoutPush[fileName]*float64(time.Second)))
 				if logLevel == "info" || logLevel == "debug" {
-					log.Infoln("Start push file '" + fileName + "'")
+					glog.Infoln("Start push file '" + fileName + "'")
 				}
 				start_push := time.Now()
 				req_push, err := http.NewRequest("PUT", artifactoryFullPath, testFile)
@@ -85,13 +86,13 @@ func makeTests(artifactoryServer ArtifactoryParams, testsInterval float64, testF
 							pushDuration[fileName] = time.Since(start_push).Seconds()
 							pushSuccess[fileName] = 1
 							if logLevel == "info" || logLevel == "debug" {
-								log.Infoln("'"+fileName+"' push duration:", pushDuration[fileName])
+								glog.Infoln("'"+fileName+"' push duration:", pushDuration[fileName])
 							}
 						} else {
 							pushDuration[fileName] = 0
 							pushSuccess[fileName] = 0
 							if logLevel == "error" || logLevel == "debug" {
-								log.Errorln("Response code:", resp_push.StatusCode)
+								glog.Errorln("Response code:", resp_push.StatusCode)
 							}
 						}
 						resp_push.Body.Close()
@@ -99,21 +100,21 @@ func makeTests(artifactoryServer ArtifactoryParams, testsInterval float64, testF
 						pushDuration[fileName] = 0
 						pushSuccess[fileName] = 0
 						if logLevel == "error" || logLevel == "debug" {
-							log.Errorln(err)
+							glog.Errorln(err)
 						}
 					}
 				} else {
 					pushDuration[fileName] = 0
 					pushSuccess[fileName] = 0
 					if logLevel == "error" || logLevel == "debug" {
-						log.Errorln(err)
+						glog.Errorln(err)
 					}
 				}
 			} else {
 				pushDuration[fileName] = 0
 				pushSuccess[fileName] = 0
 				if logLevel == "error" || logLevel == "debug" {
-					log.Errorln(err)
+					glog.Errorln(err)
 				}
 			}
 			testFile.Close()
@@ -121,7 +122,7 @@ func makeTests(artifactoryServer ArtifactoryParams, testsInterval float64, testF
 			// Pull test file
 			ctx_pull, _ := context.WithTimeout(context.Background(), time.Duration(filesTimeoutPull[fileName]*float64(time.Second)))
 			if logLevel == "info" || logLevel == "debug" {
-				log.Infoln("Start pull file '" + fileName + "'")
+				glog.Infoln("Start pull file '" + fileName + "'")
 			}
 			start_pull := time.Now()
 			req_pull, err := http.NewRequest("GET", artifactoryFullPath, nil)
@@ -139,48 +140,48 @@ func makeTests(artifactoryServer ArtifactoryParams, testsInterval float64, testF
 									hash, err := hash_file_md5(fileFullPath + "-downloaded")
 									if err == nil {
 										if logLevel == "info" || logLevel == "debug" {
-											log.Infoln("'"+fileName+"' hash: ", filesChecksum[fileName])
-											log.Infoln("'"+fileName+"-downloaded' hash: ", hash)
+											glog.Infoln("'"+fileName+"' hash: ", filesChecksum[fileName])
+											glog.Infoln("'"+fileName+"-downloaded' hash: ", hash)
 										}
 										if hash == filesChecksum[fileName] {
 											pullDuration[fileName] = time.Since(start_pull).Seconds()
 											pullSuccess[fileName] = 1
 											if logLevel == "info" || logLevel == "debug" {
-												log.Infoln("'"+fileName+"' pull duration:", pullDuration[fileName])
+												glog.Infoln("'"+fileName+"' pull duration:", pullDuration[fileName])
 											}
 										} else {
 											pullDuration[fileName] = 0
 											pullSuccess[fileName] = 0
 											if logLevel == "error" || logLevel == "debug" {
-												log.Errorln("Checksum for file '" + fileName + "-downloaded' not the same as for original")
+												glog.Errorln("Checksum for file '" + fileName + "-downloaded' not the same as for original")
 											}
 										}
 									} else {
 										pullDuration[fileName] = 0
 										pullSuccess[fileName] = 0
 										if logLevel == "error" || logLevel == "debug" {
-											log.Errorln(err)
+											glog.Errorln(err)
 										}
 									}
 								} else {
 									pullDuration[fileName] = time.Since(start_pull).Seconds()
 									pullSuccess[fileName] = 1
 									if logLevel == "info" || logLevel == "debug" {
-										log.Infoln("'"+fileName+"' pull duration:", pullDuration[fileName])
+										glog.Infoln("'"+fileName+"' pull duration:", pullDuration[fileName])
 									}
 								}
 							} else {
 								pullDuration[fileName] = 0
 								pullSuccess[fileName] = 0
 								if logLevel == "error" || logLevel == "debug" {
-									log.Errorln(err)
+									glog.Errorln(err)
 								}
 							}
 						} else {
 							pullDuration[fileName] = 0
 							pullSuccess[fileName] = 0
 							if logLevel == "error" || logLevel == "debug" {
-								log.Errorln(err)
+								glog.Errorln(err)
 							}
 						}
 						fileDownloaded.Close()
@@ -188,7 +189,7 @@ func makeTests(artifactoryServer ArtifactoryParams, testsInterval float64, testF
 						pullDuration[fileName] = 0
 						pullSuccess[fileName] = 0
 						if logLevel == "error" || logLevel == "debug" {
-							log.Errorln("Response code:", resp_pull.StatusCode)
+							glog.Errorln("Response code:", resp_pull.StatusCode)
 						}
 					}
 					resp_pull.Body.Close()
@@ -196,21 +197,21 @@ func makeTests(artifactoryServer ArtifactoryParams, testsInterval float64, testF
 					pullDuration[fileName] = 0
 					pullSuccess[fileName] = 0
 					if logLevel == "error" || logLevel == "debug" {
-						log.Errorln(err)
+						glog.Errorln(err)
 					}
 				}
 			} else {
 				pullDuration[fileName] = 0
 				pullSuccess[fileName] = 0
 				if logLevel == "error" || logLevel == "debug" {
-					log.Errorln(err)
+					glog.Errorln(err)
 				}
 			}
 		}
 		timeToWait := time.Duration(testsInterval*float64(time.Second)) - time.Since(start_tests)
 		if logLevel == "info" || logLevel == "debug" {
-			log.Infoln("---====== Finish tests ======---")
-			log.Infoln("Waiting", timeToWait)
+			glog.Infoln("---====== Finish tests ======---")
+			glog.Infoln("Waiting", timeToWait)
 		}
 		time.Sleep(timeToWait)
 	}
@@ -320,7 +321,7 @@ func createTestFiles(fileName string, fileFullPath string, fileSize int) error {
 				return err
 			}
 		}
-		log.Infoln("Created file:", fileFullPath)
+		glog.Infoln("Created file:", fileFullPath)
 	}
 	return nil
 }
@@ -332,21 +333,24 @@ func main() {
 		metricsPath   = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics.").Default("/metrics").String()
 		configFile    = kingpin.Flag("config.file", "Artifactory Test Exporter configuration file.").Default("artifactory-tests.yml").String()
 	)
-	log.AddFlags(kingpin.CommandLine)
+
+	flag.Set("logtostderr", "true")
+	flag.Parse()
+
 	kingpin.Version(version)
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
 
-	log.Infoln("Starting artifactory-tests_exporter, version", version)
-	log.Infoln("Build date:", buildDate)
+	glog.Infoln("Starting artifactory-tests_exporter, version", version)
+	glog.Infoln("Build date:", buildDate)
 
 	if err := sc.LoadConfig(*configFile); err != nil {
-		log.Fatal("Error loading config", err)
+		glog.Fatal("Error loading config", err)
 	}
 	sc.Lock()
 	conf := sc.C
 	sc.Unlock()
-	log.Infoln("Loaded config file")
+	glog.Infoln("Loaded config file")
 
 	// Tests interval
 	testsInterval := 60.0
@@ -354,10 +358,10 @@ func main() {
 		if conf.Interval.Seconds() >= testsInterval {
 			testsInterval = conf.Interval.Seconds()
 		} else {
-			log.Fatal("Tests interval should be more or equal 60 seconds")
+			glog.Fatal("Tests interval should be more or equal 60 seconds")
 		}
 	} else {
-		log.Infoln("Tests interval:", testsInterval, "seconds")
+		glog.Infoln("Tests interval:", testsInterval, "seconds")
 	}
 
 	// Timeout for handler
@@ -366,10 +370,10 @@ func main() {
 		if conf.Timeout.Seconds() <= timeoutHandlerSeconds && conf.Timeout.Seconds() > 0 {
 			timeoutHandlerSeconds = conf.Timeout.Seconds()
 		} else {
-			log.Fatal("Handler timeout should be less or equal 5 seconds")
+			glog.Fatal("Handler timeout should be less or equal 5 seconds")
 		}
 	} else {
-		log.Infoln("Handler timeout:", timeoutHandlerSeconds, "seconds")
+		glog.Infoln("Handler timeout:", timeoutHandlerSeconds, "seconds")
 	}
 
 	// Debug
@@ -399,7 +403,7 @@ func main() {
 		// Create test files
 		err := createTestFiles(fileName, fileFullPath, fileParams.Size)
 		if err != nil {
-			log.Fatal(err)
+			glog.Fatal(err)
 		}
 
 		// Histograms for Push tests
@@ -423,21 +427,21 @@ func main() {
 			if fileParams.TimeoutPush.Seconds() <= maxFileTimeout && fileParams.TimeoutPush.Seconds() > 0 {
 				filesTimeoutPush[fileName] = fileParams.TimeoutPush.Seconds()
 			} else {
-				log.Fatal("For full-cycle interval 'timeout_push' parameter should be less or equal '" + strconv.FormatFloat(maxFileTimeout, 'f', 0, 64) + "' and more than '0'")
+				glog.Fatal("For full-cycle interval 'timeout_push' parameter should be less or equal '" + strconv.FormatFloat(maxFileTimeout, 'f', 0, 64) + "' and more than '0'")
 			}
 		} else {
 			filesTimeoutPush[fileName] = maxFileTimeout
-			log.Infoln("Push timeout for '"+fileName+"':", maxFileTimeout, "seconds")
+			glog.Infoln("Push timeout for '"+fileName+"':", maxFileTimeout, "seconds")
 		}
 		if fileParams.TimeoutPull.Seconds() != 0 {
 			if fileParams.TimeoutPull.Seconds() <= maxFileTimeout && fileParams.TimeoutPull.Seconds() > 0 {
 				filesTimeoutPull[fileName] = fileParams.TimeoutPull.Seconds()
 			} else {
-				log.Fatal("For full-cycle interval 'timeout_pull' parameter should be less or equal '" + strconv.FormatFloat(maxFileTimeout, 'f', 0, 64) + "' and more than '0'")
+				glog.Fatal("For full-cycle interval 'timeout_pull' parameter should be less or equal '" + strconv.FormatFloat(maxFileTimeout, 'f', 0, 64) + "' and more than '0'")
 			}
 		} else {
 			filesTimeoutPull[fileName] = maxFileTimeout
-			log.Infoln("Pull timeout for '"+fileName+"':", maxFileTimeout, "seconds")
+			glog.Infoln("Pull timeout for '"+fileName+"':", maxFileTimeout, "seconds")
 		}
 
 		// File checksum
@@ -446,7 +450,7 @@ func main() {
 			if err == nil {
 				filesChecksum[fileName] = hash
 			} else {
-				log.Fatal(err)
+				glog.Fatal(err)
 			}
 		}
 	}
@@ -456,7 +460,7 @@ func main() {
 	if _metricsPath == "" {
 		_metricsPath = *metricsPath
 	}
-	log.Infoln("Metrics path", _metricsPath)
+	glog.Infoln("Metrics path", _metricsPath)
 	http.HandleFunc(_metricsPath, func(w http.ResponseWriter, r *http.Request) {
 		artifactoryTestHandler(w, r, timeoutHandlerSeconds, testFiles, artifactoryPushDurationHistograms, artifactoryPullDurationHistograms)
 	})
@@ -478,8 +482,8 @@ func main() {
 	if _listenAddress == "" {
 		_listenAddress = *listenAddress
 	}
-	log.Infoln("Listening on", _listenAddress)
+	glog.Infoln("Listening on", _listenAddress)
 	if err := http.ListenAndServe(_listenAddress, nil); err != nil {
-		log.Fatal(err)
+		glog.Fatal(err)
 	}
 }

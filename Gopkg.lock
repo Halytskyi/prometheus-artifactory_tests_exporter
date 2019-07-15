@@ -29,20 +29,20 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:318f1c959a8a740366fce4b1e1eb2fd914036b4af58fbd0a003349b305f118ad"
+  branch = "master"
+  digest = "1:1ba1d79f2810270045c328ae5d674321db34e3aae468eb4233883b473c5c0467"
+  name = "github.com/golang/glog"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
+
+[[projects]]
+  digest = "1:573ca21d3669500ff845bdebee890eb7fc7f0f50c59f2132f2a0c6b03d85086a"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   pruneopts = "UT"
-  revision = "b5d812f8a3706043e23a9cd5babf2e5423744d30"
-  version = "v1.3.1"
-
-[[projects]]
-  digest = "1:31e761d97c76151dde79e9d28964a812c46efc5baee4085b86f68f0c654450de"
-  name = "github.com/konsorten/go-windows-terminal-sequences"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "f55edac94c9bbba5d6182a4be46d86a2c9b5b50e"
-  version = "v1.0.2"
+  revision = "6c65a5562fc06764971b7c5d05c76c75e84bdbf7"
+  version = "v1.3.2"
 
 [[projects]]
   digest = "1:ff5ebae34cfbf047d505ee150de27e60570e8c394b3b8fdbb720ff6ac71985fc"
@@ -73,12 +73,11 @@
   revision = "fd36f4220a901265f90734c3183c5f0c91daa0b8"
 
 [[projects]]
-  digest = "1:6d7fb387ff84614fe40d35cd30f5b34dd7384bf075efef4823213a8cc5113007"
+  digest = "1:8dcedf2e8f06c7f94e48267dea0bc0be261fa97b377f3ae3e87843a92a549481"
   name = "github.com/prometheus/common"
   packages = [
     "expfmt",
     "internal/bitbucket.org/ww/goautoneg",
-    "log",
     "model",
   ]
   pruneopts = "UT"
@@ -86,65 +85,23 @@
   version = "v0.6.0"
 
 [[projects]]
-  digest = "1:04dedc2bbf98040d2f611db6e70b4669705c6478e603f07b059b56a5968d97f9"
+  digest = "1:366f5aa02ff6c1e2eccce9ca03a22a6d983da89eecff8a89965401764534eb7c"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
     "internal/fs",
-    "internal/util",
-    "nfs",
-    "xfs",
   ]
   pruneopts = "UT"
   revision = "3f98efb27840a48a7a2898ec80be07674d19f9c8"
   version = "v0.0.3"
 
 [[projects]]
-  digest = "1:04457f9f6f3ffc5fea48e71d62f2ca256637dee0a04d710288e27e05c8b41976"
-  name = "github.com/sirupsen/logrus"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "839c75faf7f98a33d445d181f3018b5c3409a45e"
-  version = "v1.4.2"
-
-[[projects]]
   branch = "master"
-  digest = "1:412617dfb5e9b6070dec2497471ca36c6f114f91bb5391d13f3cf1b0304ffc2c"
-  name = "golang.org/x/crypto"
-  packages = [
-    "ed25519",
-    "ed25519/internal/edwards25519",
-    "ssh/terminal",
-  ]
-  pruneopts = "UT"
-  revision = "cc06ce4a13d484c0101a9e92913248488a75786d"
-
-[[projects]]
-  branch = "master"
-  digest = "1:9896e6185a5f9a8c93b4c641c96bfab46677abf2be0a332a2affde2f575c0aad"
-  name = "golang.org/x/net"
-  packages = [
-    "bpf",
-    "internal/iana",
-    "internal/socket",
-    "ipv4",
-    "ipv6",
-  ]
-  pruneopts = "UT"
-  revision = "da137c7871d730100384dbcf36e6f8fa493aef5b"
-
-[[projects]]
-  branch = "master"
-  digest = "1:e82bbb54db76fa7d5caf2271ddd2447e196eecd5b694ff6eeb7f3ed05a113ab4"
+  digest = "1:1ed0196f0b3fcdc592c7deb8519aaa6176dae23c89cf2871d5d6a00874d50968"
   name = "golang.org/x/sys"
-  packages = [
-    "unix",
-    "windows",
-    "windows/registry",
-    "windows/svc/eventlog",
-  ]
+  packages = ["windows"]
   pruneopts = "UT"
-  revision = "04f50cda93cbb67f2afa353c52f342100e80e625"
+  revision = "fae7ac547cb717d141c433a2a173315e216b64c4"
 
 [[projects]]
   digest = "1:c06d9e11d955af78ac3bbb26bd02e01d2f61f689e1a3bce2ef6fb683ef8a7f2d"
@@ -166,35 +123,9 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/alecthomas/template",
-    "github.com/alecthomas/template/parse",
-    "github.com/alecthomas/units",
-    "github.com/beorn7/perks/quantile",
-    "github.com/golang/protobuf/proto",
-    "github.com/konsorten/go-windows-terminal-sequences",
-    "github.com/matttproud/golang_protobuf_extensions/pbutil",
+    "github.com/golang/glog",
     "github.com/prometheus/client_golang/prometheus",
-    "github.com/prometheus/client_golang/prometheus/internal",
     "github.com/prometheus/client_golang/prometheus/promhttp",
-    "github.com/prometheus/client_model/go",
-    "github.com/prometheus/common/expfmt",
-    "github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg",
-    "github.com/prometheus/common/log",
-    "github.com/prometheus/common/model",
-    "github.com/prometheus/procfs",
-    "github.com/prometheus/procfs/internal/util",
-    "github.com/prometheus/procfs/nfs",
-    "github.com/prometheus/procfs/xfs",
-    "github.com/sirupsen/logrus",
-    "golang.org/x/crypto/ed25519",
-    "golang.org/x/crypto/ed25519/internal/edwards25519",
-    "golang.org/x/crypto/ssh/terminal",
-    "golang.org/x/net/ipv4",
-    "golang.org/x/net/ipv6",
-    "golang.org/x/sys/unix",
-    "golang.org/x/sys/windows",
-    "golang.org/x/sys/windows/registry",
-    "golang.org/x/sys/windows/svc/eventlog",
     "gopkg.in/alecthomas/kingpin.v2",
     "gopkg.in/yaml.v2",
   ]
