@@ -334,12 +334,12 @@ func main() {
 		configFile    = kingpin.Flag("config.file", "Artifactory Test Exporter configuration file.").Default("artifactory-tests.yml").String()
 	)
 
-	flag.Set("logtostderr", "true")
-	flag.Parse()
-
 	kingpin.Version(version)
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
+
+	flag.CommandLine.Parse([]string{})
+	flag.Set("logtostderr", "true")
 
 	glog.Infoln("Starting artifactory-tests_exporter, version", version)
 	glog.Infoln("Build date:", buildDate)
