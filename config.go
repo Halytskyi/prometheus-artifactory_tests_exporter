@@ -17,7 +17,7 @@ type Config struct {
 	Interval      time.Duration             `yaml:"interval,omitempty"`
 	Timeout       time.Duration             `yaml:"timeout,omitempty"`
 	TestFilesPath string                    `yaml:"test_files_path,omitempty"`
-	LogLevel      string                    `yaml:"log_level,omitempty"`
+	Debug         bool                      `yaml:"debug,omitempty"`
 	Artifactory   ArtifactoryParams         `yaml:"artifactory,omitempty"`
 	TestFiles     map[string]TestFileParams `yaml:"test_files"`
 }

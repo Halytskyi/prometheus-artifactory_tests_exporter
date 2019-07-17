@@ -29,7 +29,6 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-var logLevel string = "none"
 var version string
 var buildDate string
 var testFilesDir string
@@ -62,9 +61,7 @@ func makeTests(artifactoryServer ArtifactoryParams, testsInterval float64, testF
 	pullSuccess = make(map[string]float64)
 
 	for {
-		if logLevel == "info" || logLevel == "debug" {
-			glog.Infoln("---====== Start tests ======---")
-		}
+		glog.V(2).Infoln("---====== Start tests ======---")
 		start_tests := time.Now()
 		for fileName, fileParams := range testFiles {
 			artifactoryFullPath := artifactoryPath + "/" + fileName
@@ -74,9 +71,7 @@ func makeTests(artifactoryServer ArtifactoryParams, testsInterval float64, testF
 			testFile, err := os.Open(fileFullPath)
 			if err == nil {
 				ctx_push, _ := context.WithTimeout(context.Background(), time.Duration(filesTimeoutPush[fileName]*float64(time.Second)))
-				if logLevel == "info" || logLevel == "debug" {
-					glog.Infoln("Start push file '" + fileName + "'")
-				}
+				glog.V(2).Infoln("Start push file '" + fileName + "'")
 				start_push := time.Now()
 				req_push, err := http.NewRequest("PUT", artifactoryFullPath, testFile)
 				if err == nil {
@@ -85,45 +80,33 @@ func makeTests(artifactoryServer ArtifactoryParams, testsInterval float64, testF
 						if resp_push.StatusCode == 201 {
 							pushDuration[fileName] = time.Since(start_push).Seconds()
 							pushSuccess[fileName] = 1
-							if logLevel == "info" || logLevel == "debug" {
-								glog.Infoln("'"+fileName+"' push duration:", pushDuration[fileName])
-							}
+							glog.V(2).Infoln("'"+fileName+"' push duration:", pushDuration[fileName])
 						} else {
 							pushDuration[fileName] = 0
 							pushSuccess[fileName] = 0
-							if logLevel == "error" || logLevel == "debug" {
-								glog.Errorln("Response code:", resp_push.StatusCode)
-							}
+							glog.V(2).Infoln("Response code:", resp_push.StatusCode)
 						}
 						resp_push.Body.Close()
 					} else {
 						pushDuration[fileName] = 0
 						pushSuccess[fileName] = 0
-						if logLevel == "error" || logLevel == "debug" {
-							glog.Errorln(err)
-						}
+						glog.V(2).Infoln(err)
 					}
 				} else {
 					pushDuration[fileName] = 0
 					pushSuccess[fileName] = 0
-					if logLevel == "error" || logLevel == "debug" {
-						glog.Errorln(err)
-					}
+					glog.V(2).Infoln(err)
 				}
 			} else {
 				pushDuration[fileName] = 0
 				pushSuccess[fileName] = 0
-				if logLevel == "error" || logLevel == "debug" {
-					glog.Errorln(err)
-				}
+				glog.V(2).Infoln(err)
 			}
 			testFile.Close()
 
 			// Pull test file
 			ctx_pull, _ := context.WithTimeout(context.Background(), time.Duration(filesTimeoutPull[fileName]*float64(time.Second)))
-			if logLevel == "info" || logLevel == "debug" {
-				glog.Infoln("Start pull file '" + fileName + "'")
-			}
+			glog.V(2).Infoln("Start pull file '" + fileName + "'")
 			start_pull := time.Now()
 			req_pull, err := http.NewRequest("GET", artifactoryFullPath, nil)
 			if err == nil {
@@ -139,80 +122,58 @@ func makeTests(artifactoryServer ArtifactoryParams, testsInterval float64, testF
 								if fileParams.VerifyChecksum {
 									hash, err := hash_file_md5(fileFullPath + "-downloaded")
 									if err == nil {
-										if logLevel == "info" || logLevel == "debug" {
-											glog.Infoln("'"+fileName+"' hash: ", filesChecksum[fileName])
-											glog.Infoln("'"+fileName+"-downloaded' hash: ", hash)
-										}
+										glog.V(2).Infoln("'"+fileName+"' hash: ", filesChecksum[fileName])
+										glog.V(2).Infoln("'"+fileName+"-downloaded' hash: ", hash)
 										if hash == filesChecksum[fileName] {
 											pullDuration[fileName] = time.Since(start_pull).Seconds()
 											pullSuccess[fileName] = 1
-											if logLevel == "info" || logLevel == "debug" {
-												glog.Infoln("'"+fileName+"' pull duration:", pullDuration[fileName])
-											}
+											glog.V(2).Infoln("'"+fileName+"' pull duration:", pullDuration[fileName])
 										} else {
 											pullDuration[fileName] = 0
 											pullSuccess[fileName] = 0
-											if logLevel == "error" || logLevel == "debug" {
-												glog.Errorln("Checksum for file '" + fileName + "-downloaded' not the same as for original")
-											}
+											glog.V(2).Infoln("Checksum for file '" + fileName + "-downloaded' not the same as for original")
 										}
 									} else {
 										pullDuration[fileName] = 0
 										pullSuccess[fileName] = 0
-										if logLevel == "error" || logLevel == "debug" {
-											glog.Errorln(err)
-										}
+										glog.V(2).Infoln(err)
 									}
 								} else {
 									pullDuration[fileName] = time.Since(start_pull).Seconds()
 									pullSuccess[fileName] = 1
-									if logLevel == "info" || logLevel == "debug" {
-										glog.Infoln("'"+fileName+"' pull duration:", pullDuration[fileName])
-									}
+									glog.V(2).Infoln("'"+fileName+"' pull duration:", pullDuration[fileName])
 								}
 							} else {
 								pullDuration[fileName] = 0
 								pullSuccess[fileName] = 0
-								if logLevel == "error" || logLevel == "debug" {
-									glog.Errorln(err)
-								}
+								glog.V(2).Infoln(err)
 							}
 						} else {
 							pullDuration[fileName] = 0
 							pullSuccess[fileName] = 0
-							if logLevel == "error" || logLevel == "debug" {
-								glog.Errorln(err)
-							}
+							glog.V(2).Infoln(err)
 						}
 						fileDownloaded.Close()
 					} else {
 						pullDuration[fileName] = 0
 						pullSuccess[fileName] = 0
-						if logLevel == "error" || logLevel == "debug" {
-							glog.Errorln("Response code:", resp_pull.StatusCode)
-						}
+						glog.V(2).Infoln("Response code:", resp_pull.StatusCode)
 					}
 					resp_pull.Body.Close()
 				} else {
 					pullDuration[fileName] = 0
 					pullSuccess[fileName] = 0
-					if logLevel == "error" || logLevel == "debug" {
-						glog.Errorln(err)
-					}
+					glog.V(2).Infoln(err)
 				}
 			} else {
 				pullDuration[fileName] = 0
 				pullSuccess[fileName] = 0
-				if logLevel == "error" || logLevel == "debug" {
-					glog.Errorln(err)
-				}
+				glog.V(2).Infoln(err)
 			}
 		}
 		timeToWait := time.Duration(testsInterval*float64(time.Second)) - time.Since(start_tests)
-		if logLevel == "info" || logLevel == "debug" {
-			glog.Infoln("---====== Finish tests ======---")
-			glog.Infoln("Waiting", timeToWait)
-		}
+		glog.V(2).Infoln("---====== Finish tests ======---")
+		glog.V(2).Infoln("Waiting", timeToWait)
 		time.Sleep(timeToWait)
 	}
 }
@@ -352,6 +313,11 @@ func main() {
 	sc.Unlock()
 	glog.Infoln("Loaded config file")
 
+	// Debug
+	if conf.Debug {
+		flag.Set("v", "2")
+	}
+
 	// Tests interval
 	testsInterval := 60.0
 	if conf.Interval.Seconds() != 0 {
@@ -375,9 +341,6 @@ func main() {
 	} else {
 		glog.Infoln("Handler timeout:", timeoutHandlerSeconds, "seconds")
 	}
-
-	// Debug
-	logLevel = conf.LogLevel
 
 	// Artifactory server parameters
 	artifactoryParams := conf.Artifactory

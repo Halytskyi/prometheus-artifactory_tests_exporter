@@ -14,12 +14,12 @@ metrics_path: "/metrics"
 interval: "60s"
 timeout: "5s"
 test_files_path: "/opt/prometheus/prometheus-artifactory-tests-exporter/test-files"
-log_level: "none"
+debug: false
 
 test_files:
   <test_filename>:
-    timeout_push: "<maximum possible timeout, see below>"
-    timeout_pull: "<maximum possible timeout, see below>"
+    timeout_push: "<maximum possible timeout, see description below>"
+    timeout_pull: "<maximum possible timeout, see description below>"
     verify_checksum: false
 ```
 
@@ -31,7 +31,7 @@ where,
 
 `test_files_path` - path to test files
 
-`log_level` - can be "none", "info", "error" or "debug"
+`debug` - can be `true` or `false`
 
 `timeout_push` and `timeout_pull` - timeout for push and pull tests. For full-cycle tests interval maximum possible value should be calculated by formula:
 ```
